@@ -1,24 +1,34 @@
-## Etude des methode du tri
+# Etude et Benchmark des Algorithmes de Tri en C
 
-# nkki nigh ghikad 
+Projet de comparaison des algorithmes de tri en C avec mesures de temps et de comparaisons, et generation de graphes via Gnuplot.
 
-tri.h
-    -void sort_algorithm_**(int *p,int n);
-    -void sort_algorithm_**(int *p,int n);
-    -void sort_algorithm_**(int *p,int n);
+## Repartition des taches
+- Person A: Infrastructure, tri.h, Makefile, generateur d'entrees (input.c), benchmark, Bubble Sort et Selection Sort.
+- Person B: Merge Sort, Quick Sort (2 pivots), Heap Sort, reference qsort().
+- Person C: Insertion Sort, scripts Gnuplot, rapport et presentation.
 
+## Compilation et execution
+Compiler le projet:
+```bash
+make
+```
 
-tri.c
-    -void sort_algorithm_**(int *p,int n){
-      ---------------------
-      --------------------
-    }
+Lancer la demo rapide:
+```bash
+make demo
+```
 
-outils.h
-outils.c
-      -double timer(){
-      ---------------------
-      }
+Lancer les tests de validation:
+```bash
+make test
+```
 
+Lancer le benchmark complet (genere results/benchmark_summary.csv):
+```bash
+make full
+```
 
-main.c (main program)
+Nettoyer les fichiers binaires:
+```bash
+make clean
+```

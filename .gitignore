@@ -1,0 +1,13 @@
+# Build artifacts
+bin/
+obj/
+*.o
+*.out
+
+# Benchmark results (optional if you want to regenerate them)
+# results/*.csv
+
+# System files
+.DS_Store
+*.swp
+*~

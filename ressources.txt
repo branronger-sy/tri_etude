@@ -1,1 +1,26 @@
-Ressources
+Ressources et References:
+
+1. Livres et references academiques:
+- T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein, "Introduction to Algorithms" (CLRS), 3eme edition.
+  * Chapitre 2: Problemes 2-2 pour Bubble sort et exercices sur Selection sort.
+  * Chapitre 7: Quicksort.
+  * Chapitre 6: Heapsort.
+- Donald Knuth, "The Art of Computer Programming", Vol 3: Sorting and Searching.
+  * Section 5.2.2: Sorting by Exchanging (Bubble sort).
+  * Section 5.2.3: Sorting by Selection.
+- Robert Sedgewick, "Algorithms in C", Chapitre 6: Elementary Sorting Methods.
+
+2. Notes sur les algorithmes (Person A):
+- Tri a bulles (Bubble Sort):
+  * Meilleur cas: O(n) avec drapeau d'arret anticipe.
+  * Pire cas: O(n^2) sur tableau inverse.
+  * Espace: O(1) sur place.
+  * Stable: oui.
+- Tri par selection (Selection Sort):
+  * Complexite: Theta(n^2) dans tous les cas.
+  * Espace: O(1) sur place.
+  * Echanges: au plus n-1 echanges.
+  * Stable: non.
+
+3. Format CSV genere:
+- Colonnes: Algorithm,InputType,Size,Time_Seconds,Time_MS,Comparisons,Sorted
