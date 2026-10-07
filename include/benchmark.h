@@ -1,21 +1,24 @@
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
-#include "input.h"
+typedef enum {
+    INPUT_RANDOM=0,
+    INPUT_SORTED,
+    INPUT_REVERSE_SORTED,
+    INPUT_NEARLY_SORTED,
+    INPUT_MANY_DUPLICATES,
+    INPUT_TYPE_COUNT
+} InputType;
 
-typedef struct {
-    const char *algorithm_name;
-    InputType input_type;
-    int size;
-    double time_sec;
-    double time_ms;
-    unsigned long long comparisons;
-    int is_sorted_ok;
-} BenchmarkResult;
+void        generate_array(int *t, int n, InputType type);
+const char *input_type_name(InputType type);
+const char *input_type_filename(InputType type);
+int         parse_input_type(const char *str);
+int         save_array(const char *filename, const int *t, int n);
+int         load_array(const char *filename, int *t, int n);
 
-BenchmarkResult benchmark_run_single(const char *algo_name, void (*sort_fn)(int *t, int n), InputType input_type, int size);
-void benchmark_run_demo(void);
-void benchmark_run_full(void);
-void benchmark_run_tests(void);
+void benchmark_run_demo(const char *type_str, const char *filter);
+void benchmark_run_full(const char *type_str, const char *filter);
+void benchmark_run_tests(const char *filter);
 
 #endif

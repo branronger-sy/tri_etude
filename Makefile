@@ -1,47 +1,52 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -O2 -Iinclude
-LDFLAGS = 
+CC=gcc
+CFLAGS=-Wall -Wextra -O2 -Iinclude
+SRC_DIR=src
+RES_DIR=results
+SRCS=$(wildcard $(SRC_DIR)/*.c)
+TARGET=benchmark
 
-SRC_DIR = src
-INC_DIR = include
-OBJ_DIR = obj
-BIN_DIR = bin
-RES_DIR = results
-
-# Automatically include all .c files in src/
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-TARGET = $(BIN_DIR)/benchmark
-
-.PHONY: all demo full test clean run dirs
+.PHONY: all demo full test clean run dirs random sorted reverse nearly duplicates
 
 all: dirs $(TARGET)
 
 dirs:
-	@mkdir -p $(OBJ_DIR) $(BIN_DIR) $(RES_DIR)
+	@mkdir -p $(RES_DIR)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-	@echo "Build successful! Executable ready at $(TARGET)"
+$(TARGET): $(SRCS)
+	$(CC) $(CFLAGS) -o $@ $^
+	@echo "Build successful! Executable ready at ./$(TARGET)"
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Fast interactive live demonstration (for the presentation)
+# Demo rapide
 demo: all
-	@./$(TARGET) --demo
+	@./$(TARGET) --demo random
 
-# Comprehensive benchmark suite generating CSV files
-full: all
-	@./$(TARGET) --full
-
-# Unit correctness verification tests
+# Tests unitaires
 test: all
 	@./$(TARGET) --test
 
-# Alias for demo
+# Benchmarks complets par type de donnees
+random: all
+	@./$(TARGET) --full random
+
+sorted: all
+	@./$(TARGET) --full sorted
+
+reverse: all
+	@./$(TARGET) --full reverse
+
+nearly: all
+	@./$(TARGET) --full nearly
+
+duplicates: all
+	@./$(TARGET) --full duplicates
+
+# Benchmark de tous les types
+full: all
+	@./$(TARGET) --full all
+
 run: demo
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -f $(TARGET)
 	@echo "Clean completed."
+
