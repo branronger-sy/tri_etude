@@ -1,0 +1,161 @@
+PLOT PLAN - Linking the C benchmark with gnuplot
+================================================
+
+Goal
+----
+Turn the CSV files produced by the C benchmark program (./benchmark) into
+PNG line charts, per input-data type, using gnuplot.
+
+Pipeline overview
+-----------------
+
+    C program (./benchmark --full <type>)
+            |
+            |  writes
+            v
+    results/<type>.csv        (Algorithm,InputType,Size,Time_Seconds,Time_MS,Sorted)
+            |
+            |  gnuplot reads CSV, if config < > clean per-algorithm data
+            v
+    plot.gp  (dynamic gnuplot script, parameterized by "type")
+            |
+            |  draws smoothed lines
+            v
+    results/plot_<type>.png
+
+
+================================================================
+1) HOW THE C PROGRAM IS LINKED TO GNuPLOT
+================================================================
+
+The C program and gnuplot do NOT communicate at runtime. The bridge is
+the Makefile, which runs them in sequence:
+
+  1.  ./benchmark --full <type>   ->  builds/refreshes results/<type>.csv
+  2.  gnuplot -e "type='<type>'" plot.gp
+                                     ->  reads that CSV and draws the PNG
+
+So the "link" is:
+    Makefile target == input-data type (random, sorted, reverse, nearly,
+                                           duplicates)
+    C program       == produces the data (CSV)
+    plot.gp         == consumes the data and renders the chart (PNG)
+
+The only value passed from the Makefile to gnuplot is the gnuplot "type"
+variable, injected with the -e option:
+
+    gnuplot -e "type='reverse_sorted'" plot.gp
+
+In plot.gp, that variable is used to build the paths:
+
+    csv = "results/".type.".csv"
+    out = "results/plot_".type.".png"
+
+
+================================================================
+2) HOW THE CHARTS ARE FINALLY GENERATED (details in plot.gp)
+================================================================
+
+Step A - setup
+    - mkdir -p results          (github "system()" call: system("mkdir -p results"))
+
+Step B - extract one clean data file per algorithm (system() + awk)
+    Because CSV rows are interleaved (Bubble, Selection, Insertion, Merge,
+    Quick, Qsort_std), gnuplot cannot read one curve directly, so awk
+    extracts each algorithm into its own file:
+
+        awk -F, -v alg=Quick_Sort 'NR>1 && $1==alg {print $3, $5}' results/random.csv > /tmp/.../random_Quick_Sort.dat
+
+    columns kept: Size (x) and Time_MS (y). This is also what makes
+    "smooth csplines" work: clean data, no NaN, enough points per curve.
+
+Step C - rendering options (PNG)
+    set terminal pngcairo size 1400,850
+    set output results/plot_<type>.png
+    set logscale x and logscale y   (times range over several orders of magnitude)
+    set key outside right center
+
+Step D - the actual plot (one smoothed curve per algorithm)
+    set samples 500
+    plot for [a in algos] <tmp>.dat using 1:($2 > 0 ? $2 : 1e-3) \
+         title a smooth csplines with lines lw 2
+
+    - $2 > 0 ? $2 : 1e-3  ->  floors 0.000 ms timings (log scale needs y>0)
+    - smooth csplines     ->  cubic-spline interpolation: smooth, continuous lines
+
+Step E - cleanup
+    system("rm -rf /tmp/gnuplot_plots")
+
+
+================================================================
+3) WAS THE C PROGRAM MODIFIED?
+================================================================
+
+NO. The C source (src/*.c, include/*.h) is UNCHANGED.
+
+The benchmark program already did everything needed:
+  - writes results/<type>.csv (see run_type_benchmark() in src/benchmark.c)
+  - CSV columns: Algorithm,InputType,Size,Time_Seconds,Time_MS,Sorted
+
+Only the Makefile + a new script + .gitignore were touched.
+
+
+================================================================
+4) WAS THE MAKEFILE MODIFIED?
+================================================================
+
+YES. Changes in Makefile:
+
+  a. New variables
+       GNUPLOT=gnuplot
+       PLOT_SCRIPT=plot.gp
+
+  b. Helper recipe macro to draw one type
+       define draw_plot
+           @echo "--> Graph: results/plot_$(1).png"
+           @$(GNUPLOT) -e "type='$(1)'" $(PLOT_SCRIPT)
+       endef
+
+  c. Each benchmark target now also draws its own chart
+       random    ->  full random   + draw_plot,random
+       sorted    ->  full sorted   + draw_plot,sorted
+       reverse   ->  full reverse  + draw_plot,reverse_sorted
+       nearly    ->  full nearly   + draw_plot,nearly_sorted
+       duplicates->  full duplicates + draw_plot,many_duplicates
+
+  d. "full" runs the benchmark for all types, then a shell loop draws
+     one PNG per type (results/plot_random.png, plot_sorted.png, ...).
+
+  e. New "plot" (alias "graph") target to redraw all PNGs from the
+     existing CSVs, WITHOUT re-running the benchmark.
+
+  f. "clean" now also removes results/plot_*.png
+
+  Also added: results/*.png to .gitignore (generated files).
+
+
+================================================================
+5) FILES SUMMARY
+================================================================
+
+  NEW :
+    plot.gp                 dynamic gnuplot script (parameterized by "type")
+
+  MODIFIED :
+    Makefile                glues benchmark + gnuplot, adds plot targets
+    .gitignore              ignores generated PNGs
+
+  UNTOUCHED :
+    src/*.c  include/*.h    the C program
+    README.md
+
+================================================================
+6) USAGE
+================================================================
+
+    make random            # benchmark random + plot_random.png
+    make reverse           # benchmark reverse + plot_reverse_sorted.png
+    make full              # all benchmarks + all PNGs
+    make plot              # redraw all PNGs from existing CSVs
+
+Requirement: gnuplot must be installed (sudo apt install gnuplot).
