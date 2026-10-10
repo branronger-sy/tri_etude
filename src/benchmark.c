@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-static double get_time_sec(void) {
+static double get_time_sec() {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
@@ -29,32 +29,50 @@ static void ensure_results_dir(void) {
     mkdir("results", 0755);
 }
 
-static void benchmark_one(const char *name, void (*sort_fn)(int *t, int n),
-                          InputType input_type, int size, FILE *csv_f) {
-  if (size <= 0 || !sort_fn)
+static void call_sort(const char *name, int *arr, int size) {
+  if (strcmp(name, "Bubble_Sort") == 0)
+    tri_bubble(arr, size);
+  else if (strcmp(name, "Selection_Sort") == 0)
+    tri_selection(arr, size);
+  else if (strcmp(name, "Insertion_Sort") == 0)
+    tri_insertion(arr, size);
+  else if (strcmp(name, "Merge_Sort") == 0)
+    tri_merge(arr, size);
+  else if (strcmp(name, "Quick_Sort") == 0)
+    tri_quick(arr, size);
+  else if (strcmp(name, "Qsort_std") == 0)
+    tri_qsort_std(arr, size);
+  else if (strcmp(name, "Heap_Sort") == 0)
+    tri_heap(arr, size);
+}
+
+static void benchmark_one(const char *name, InputType input_type, int size,
+                          FILE *csv_f) {
+  if (size <= 0)
     return;
-  int *arr = (int *)malloc((size_t)size * sizeof(int));
-  if (!arr) {
-    printf("Erreur d'allocation pour n=%d\n", size);
+
+  int *arr = malloc(size * sizeof(int));
+  if (arr == NULL) {
+    printf("Erreur memoire pour n=%d\n", size);
     return;
   }
 
   generate_array(arr, size, input_type);
 
-  double t_start = get_time_sec();
-  sort_fn(arr, size);
-  double t_end = get_time_sec();
+  double debut = get_time_sec();
+  call_sort(name, arr, size);
+  double fin = get_time_sec();
 
-  double time_sec = t_end - t_start;
-  double time_ms = time_sec * 1000.0;
+  double temps_sec = fin - debut;
+  double temps_ms = temps_sec * 1000.0;
   int ok = is_sorted(arr, size);
 
-  if (csv_f)
+  if (csv_f != NULL)
     fprintf(csv_f, "%s,%s,%d,%.6f,%.3f,%d\n", name, input_type_name(input_type),
-            size, time_sec, time_ms, ok);
+            size, temps_sec, temps_ms, ok);
   else
     printf("%-16s | %-14s | %-6d | %8.3f ms | %s\n", name,
-           input_type_name(input_type), size, time_ms, ok ? "OK" : "ERREUR");
+           input_type_name(input_type), size, temps_ms, ok ? "OK" : "ERREUR");
 
   free(arr);
 }
@@ -66,26 +84,30 @@ static void run_algorithms(InputType itype, int size, const char *filter,
 
   if (!filter || strcmp(filter, "Bubble_Sort") == 0)
     if (quadratic_limit)
-      benchmark_one("Bubble_Sort", tri_bubble, itype, size, csv_f);
+      benchmark_one("Bubble_Sort", itype, size, csv_f);
   if (!filter || strcmp(filter, "Selection_Sort") == 0)
     if (quadratic_limit)
-      benchmark_one("Selection_Sort", tri_selection, itype, size, csv_f);
+      benchmark_one("Selection_Sort", itype, size, csv_f);
   if (!filter || strcmp(filter, "Insertion_Sort") == 0)
     if (quadratic_limit)
-      benchmark_one("Insertion_Sort", tri_insertion, itype, size, csv_f);
+      benchmark_one("Insertion_Sort", itype, size, csv_f);
   if (!filter || strcmp(filter, "Merge_Sort") == 0)
     if (fast_limit)
-      benchmark_one("Merge_Sort", tri_merge, itype, size, csv_f);
+      benchmark_one("Merge_Sort", itype, size, csv_f);
   if (!filter || strcmp(filter, "Quick_Sort") == 0)
     if (fast_limit)
-      benchmark_one("Quick_Sort", tri_quick, itype, size, csv_f);
+      benchmark_one("Quick_Sort", itype, size, csv_f);
   if (!filter || strcmp(filter, "Qsort_std") == 0)
     if (fast_limit)
-      benchmark_one("Qsort_std", tri_qsort_std, itype, size, csv_f);
+      benchmark_one("Qsort_std", itype, size, csv_f);
+  if (!filter || strcmp(filter, "Heap_Sort") == 0)
+    if (fast_limit)
+      benchmark_one("Heap_Sort", itype, size, csv_f);
 }
 
 void benchmark_run_demo(const char *type_str, const char *filter) {
-  int demo_sizes[] = {100, 500, 1000, 5000, 10000};
+  int demo_sizes[] = {100,  250,  500,   750,   1000,  2000, 3000,
+                      5000, 7500, 10000, 15000, 20000, 25000};
   int num = sizeof(demo_sizes) / sizeof(demo_sizes[0]);
 
   int parsed = parse_input_type(type_str);
@@ -112,7 +134,8 @@ static void run_type_benchmark(InputType itype, const char *filter) {
 
   fprintf(f, "Algorithm,InputType,Size,Time_Seconds,Time_MS,Sorted\n");
 
-  int full_sizes[] = {100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000};
+  int full_sizes[] = {100,  250,   500,   1000,  2500,
+                      5000, 10000, 25000, 50000, 100000};
   int num = sizeof(full_sizes) / sizeof(full_sizes[0]);
 
   printf("--> %-15s (sauvegarde dans %s)...\n", input_type_name(itype),
@@ -138,18 +161,19 @@ void benchmark_run_full(const char *type_str, const char *filter) {
   printf("\nBenchmark termine avec succes.\n\n");
 }
 
-static int test_algo(const char *name, void (*sort_fn)(int *t, int n)) {
+static int test_algo(const char *name) {
   int test_sizes[] = {1, 2, 10, 100, 1000};
   int num = sizeof(test_sizes) / sizeof(test_sizes[0]);
   int ok = 1;
+
   for (int t = 0; t < INPUT_TYPE_COUNT; t++) {
     for (int s = 0; s < num; s++) {
       int n = test_sizes[s];
-      int *arr = (int *)malloc((size_t)n * sizeof(int));
-      if (!arr)
+      int *arr = malloc(n * sizeof(int));
+      if (arr == NULL)
         continue;
       generate_array(arr, n, (InputType)t);
-      sort_fn(arr, n);
+      call_sort(name, arr, n);
       if (!is_sorted(arr, n)) {
         ok = 0;
         printf("  Echec: %s type=%s n=%d\n", name,
@@ -165,16 +189,18 @@ static int test_algo(const char *name, void (*sort_fn)(int *t, int n)) {
 void benchmark_run_tests(const char *filter) {
   printf("\n=== Tests de validation ===\n\n");
   if (!filter || strcmp(filter, "Bubble_Sort") == 0)
-    test_algo("Bubble_Sort", tri_bubble);
+    test_algo("Bubble_Sort");
   if (!filter || strcmp(filter, "Selection_Sort") == 0)
-    test_algo("Selection_Sort", tri_selection);
+    test_algo("Selection_Sort");
   if (!filter || strcmp(filter, "Insertion_Sort") == 0)
-    test_algo("Insertion_Sort", tri_insertion);
+    test_algo("Insertion_Sort");
   if (!filter || strcmp(filter, "Merge_Sort") == 0)
-    test_algo("Merge_Sort", tri_merge);
+    test_algo("Merge_Sort");
   if (!filter || strcmp(filter, "Quick_Sort") == 0)
-    test_algo("Quick_Sort", tri_quick);
+    test_algo("Quick_Sort");
   if (!filter || strcmp(filter, "Qsort_std") == 0)
-    test_algo("Qsort_std", tri_qsort_std);
+    test_algo("Qsort_std");
+  if (!filter || strcmp(filter, "Heap_Sort") == 0)
+    test_algo("Heap_Sort");
   printf("\n");
 }

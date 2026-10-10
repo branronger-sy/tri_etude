@@ -9,7 +9,7 @@ tmpdir = "/tmp/gnuplot_plots"
 system("rm -rf ".tmpdir)
 system("mkdir -p ".tmpdir)
 
-algos = "Bubble_Sort Selection_Sort Insertion_Sort Merge_Sort Quick_Sort Qsort_std"
+algos = "Bubble_Sort Selection_Sort Insertion_Sort Merge_Sort Quick_Sort Heap_Sort Qsort_std"
 
 do for [a in algos] {
     tmp = tmpdir."/".type."_".a.".dat"
