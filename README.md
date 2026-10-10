@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Utilisation rapide
+##  Utilisation rapide
 
 Le projet s'exécute facilement avec un seul script qui s'occupe automatiquement de la compilation et de l'exécution :
 * **Linux / macOS** : `./run.sh`
@@ -71,7 +71,7 @@ run clean
 
 ---
 
-## 📊 Algorithmes implémentés (7 algorithmes)
+##  Algorithmes implémentés (7 algorithmes)
 
 1. **Tri à bulles** (`Bubble_Sort` / `tri_bubble`) : $O(n^2)$
 2. **Tri par sélection** (`Selection_Sort` / `tri_selection`) : $O(n^2)$
@@ -83,7 +83,7 @@ run clean
 
 ---
 
-## 📁 Types de données testés
+##  Types de données testés
 
 * `random` : Nombres aléatoires non triés.
 * `sorted` : Données déjà triées par ordre croissant.
@@ -93,7 +93,7 @@ run clean
 
 ---
 
-## 📂 Structure du projet
+##  Structure du projet
 
 ```
 tri_etude/
@@ -114,7 +114,7 @@ tri_etude/
 
 ---
 
-## 🛠️ Prérequis
+##  Prérequis
 
 * **GCC** (ou tout compilateur C supportant C99 / POSIX).
 * **Gnuplot** *(optionnel)* : Nécessaire uniquement pour générer les images des courbes `.png`.
