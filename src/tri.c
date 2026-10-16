@@ -85,20 +85,21 @@ void tri_merge(int *t, int n) {
     return;
   merge_rec(t, 0, n - 1);
 }
-
 void tri_quick(int *t, int n) {
   if (n <= 1)
     return;
-  int pivot = t[n / 2], i = 0, j = n - 1;
+  int mid = n / 2;
+  int pivot = t[mid];
+  int i = 0, j = n - 1;
   while (i <= j) {
     while (t[i] < pivot)
       i++;
     while (t[j] > pivot)
       j--;
     if (i <= j) {
-      int tmp = t[i];
+      int temp = t[i];
       t[i] = t[j];
-      t[j] = tmp;
+      t[j] = temp;
       i++;
       j--;
     }
@@ -106,7 +107,6 @@ void tri_quick(int *t, int n) {
   tri_quick(t, j + 1);
   tri_quick(t + i, n - i);
 }
-
 static int cmp_int(const void *a, const void *b) {
   return (*(int *)a - *(int *)b);
 }

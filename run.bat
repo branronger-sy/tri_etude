@@ -6,6 +6,16 @@ if "%1"=="clean" (
     exit /b 0
 )
 
+where gcc >nul 2>&1
+if errorlevel 1 (
+    if exist benchmark.exe (
+        goto :execute
+    )
+    echo Erreur : Le compilateur GCC n'a pas ete trouve dans le PATH !
+    echo Veuillez installer MinGW / MSYS2 ou w64devkit et l'ajouter a la variable d'environnement PATH.
+    exit /b 1
+)
+
 if not exist results mkdir results
 
 gcc -Wall -Wextra -O2 -Iinclude -o benchmark.exe src\*.c
@@ -14,6 +24,8 @@ if errorlevel 1 (
     exit /b 1
 )
 echo Compilation reussie.
+
+:execute
 
 set CMD=%1
 if "%CMD%"=="" set CMD=demo
@@ -33,7 +45,10 @@ exit /b 0
 
 :plot
 where gnuplot >nul 2>&1
-if errorlevel 1 exit /b 0
+if errorlevel 1 (
+    echo Note : Gnuplot n'est pas installe. Generation des graphes ignoree.
+    exit /b 0
+)
 if not exist plot.gp exit /b 0
 
 set TYPE=%1

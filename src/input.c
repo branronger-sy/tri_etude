@@ -2,7 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef _WIN32
 #include <strings.h>
+#else
+#define strcasecmp _stricmp
+#endif
 
 void generate_array(int *t, int n, InputType type) {
   if (!t || n <= 0)
@@ -76,6 +81,23 @@ const char *input_type_filename(InputType type) {
     return "results/many_duplicates.csv";
   default:
     return "results/benchmark.csv";
+  }
+}
+
+const char *input_type_key(InputType type) {
+  switch (type) {
+  case INPUT_RANDOM:
+    return "random";
+  case INPUT_SORTED:
+    return "sorted";
+  case INPUT_REVERSE_SORTED:
+    return "reverse_sorted";
+  case INPUT_NEARLY_SORTED:
+    return "nearly_sorted";
+  case INPUT_MANY_DUPLICATES:
+    return "many_duplicates";
+  default:
+    return "benchmark";
   }
 }
 

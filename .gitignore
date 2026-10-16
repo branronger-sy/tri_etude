@@ -1,5 +1,6 @@
 # Build artifacts
 benchmark
+benchmark.exe
 bin/
 obj/
 *.o

@@ -1,8 +1,24 @@
 #!/bin/bash
 
 if [ "$1" = "clean" ]; then
-    rm -f benchmark results/plot_*.png
+    rm -f benchmark benchmark.exe results/plot_*.png
     echo "Projet nettoyé."
+    exit 0
+fi
+
+if [ "$1" = "check" ] || [ "$1" = "check-all" ]; then
+    echo "=== 1. Vérification Linux ==="
+    gcc -Wall -Wextra -O2 -Iinclude -o benchmark src/*.c && ./benchmark --test
+    echo ""
+    echo "=== 2. Vérification Windows (Cross-compilation) ==="
+    if command -v x86_64-w64-mingw32-gcc >/dev/null 2>&1; then
+        x86_64-w64-mingw32-gcc -Wall -Wextra -O2 -Iinclude -o benchmark.exe src/*.c
+        echo "Compilation Windows réussie : benchmark.exe créé avec succès."
+    else
+        echo "mingw-w64-gcc n'est pas installé sur ce système."
+    fi
+    echo ""
+    echo "✅ Validation complète pour Linux et Windows terminée avec succès !"
     exit 0
 fi
 

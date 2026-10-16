@@ -11,6 +11,7 @@ typedef enum {
 void generate_array(int *t, int n, InputType type);
 const char *input_type_name(InputType type);
 const char *input_type_filename(InputType type);
+const char *input_type_key(InputType type);
 int parse_input_type(const char *str);
 void benchmark_run_demo(const char *type_str, const char *filter);
 void benchmark_run_full(const char *type_str, const char *filter);

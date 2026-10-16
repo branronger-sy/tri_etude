@@ -1,4 +1,7 @@
+#ifndef _WIN32
 #define _POSIX_C_SOURCE 199309L
+#endif
+
 #include "benchmark.h"
 #include "tri.h"
 #include <stdio.h>
@@ -8,11 +11,24 @@
 #include <sys/types.h>
 #include <time.h>
 
-static double get_time_sec() {
+#ifdef _WIN32
+#include <direct.h>
+#include <windows.h>
+#define make_results_dir() _mkdir("results")
+static double get_time_sec(void) {
+  LARGE_INTEGER freq, counter;
+  QueryPerformanceFrequency(&freq);
+  QueryPerformanceCounter(&counter);
+  return (double)counter.QuadPart / (double)freq.QuadPart;
+}
+#else
+#define make_results_dir() mkdir("results", 0755)
+static double get_time_sec(void) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
 }
+#endif
 
 static int is_sorted(const int *t, int n) {
   if (!t || n <= 1)
@@ -26,7 +42,7 @@ static int is_sorted(const int *t, int n) {
 static void ensure_results_dir(void) {
   struct stat st = {0};
   if (stat("results", &st) == -1)
-    mkdir("results", 0755);
+    make_results_dir();
 }
 
 static void call_sort(const char *name, int *arr, int size) {
@@ -134,15 +150,34 @@ static void run_type_benchmark(InputType itype, const char *filter) {
 
   fprintf(f, "Algorithm,InputType,Size,Time_Seconds,Time_MS,Sorted\n");
 
+  const char *algos[] = {"Bubble_Sort", "Selection_Sort", "Insertion_Sort",
+                         "Merge_Sort",  "Quick_Sort",      "Heap_Sort",
+                         "Qsort_std"};
+  int num_algos = sizeof(algos) / sizeof(algos[0]);
+
   int full_sizes[] = {100,  250,   500,   1000,  2500,
                       5000, 10000, 25000, 50000, 100000};
-  int num = sizeof(full_sizes) / sizeof(full_sizes[0]);
+  int num_sizes = sizeof(full_sizes) / sizeof(full_sizes[0]);
 
   printf("--> %-15s (sauvegarde dans %s)...\n", input_type_name(itype),
          csv_path);
 
-  for (int s = 0; s < num; s++)
-    run_algorithms(itype, full_sizes[s], filter, f);
+  for (int a = 0; a < num_algos; a++) {
+    const char *algo = algos[a];
+    if (filter && strcmp(filter, algo) != 0)
+      continue;
+
+    int is_quadratic = (strcmp(algo, "Bubble_Sort") == 0 ||
+                        strcmp(algo, "Selection_Sort") == 0 ||
+                        strcmp(algo, "Insertion_Sort") == 0);
+
+    for (int s = 0; s < num_sizes; s++) {
+      int size = full_sizes[s];
+      if (is_quadratic && size > 25000)
+        continue;
+      benchmark_one(algo, itype, size, f);
+    }
+  }
 
   fclose(f);
 }
