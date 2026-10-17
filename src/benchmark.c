@@ -140,15 +140,54 @@ void benchmark_run_demo(const char *type_str, const char *filter) {
   printf("\nDemo terminee avec succes.\n\n");
 }
 
+#define MAX_CSV_LINES 1024
+#define MAX_LINE_LEN 256
+
 static void run_type_benchmark(InputType itype, const char *filter) {
   const char *csv_path = input_type_filename(itype);
+  char (*existing_lines)[MAX_LINE_LEN] = NULL;
+  int existing_count = 0;
+
+  if (filter != NULL) {
+    FILE *in = fopen(csv_path, "r");
+    if (in) {
+      existing_lines = malloc(MAX_CSV_LINES * sizeof(*existing_lines));
+      if (existing_lines) {
+        char line_buf[MAX_LINE_LEN];
+        size_t flen = strlen(filter);
+        while (fgets(line_buf, sizeof(line_buf), in)) {
+          if (strncmp(line_buf, "Algorithm,", 10) == 0)
+            continue;
+          if (strncmp(line_buf, filter, flen) == 0 && line_buf[flen] == ',')
+            continue;
+          if (existing_count < MAX_CSV_LINES) {
+            snprintf(existing_lines[existing_count], MAX_LINE_LEN, "%s",
+                     line_buf);
+            existing_count++;
+          }
+        }
+      }
+      fclose(in);
+    }
+  }
+
   FILE *f = fopen(csv_path, "w");
   if (!f) {
     printf("Erreur de creation du fichier %s\n", csv_path);
+    if (existing_lines)
+      free(existing_lines);
     return;
   }
 
   fprintf(f, "Algorithm,InputType,Size,Time_Seconds,Time_MS,Sorted\n");
+
+  if (existing_lines) {
+    for (int i = 0; i < existing_count; i++) {
+      fputs(existing_lines[i], f);
+    }
+    free(existing_lines);
+    existing_lines = NULL;
+  }
 
   const char *algos[] = {"Bubble_Sort", "Selection_Sort", "Insertion_Sort",
                          "Merge_Sort",  "Quick_Sort",      "Heap_Sort",

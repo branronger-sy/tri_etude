@@ -4,9 +4,9 @@
 
 ---
 
-##  Utilisation rapide
+## Utilisation rapide
 
-Le projet s'exécute facilement avec un seul script qui s'occupe automatiquement de la compilation et de l'exécution :
+Le projet s'exécute avec un script qui assure automatiquement la compilation et l'exécution :
 * **Linux / macOS** : `./run.sh`
 * **Windows (PowerShell)** : `.\run` (ou `.\run.bat`)
 * **Windows (CMD)** : `run` (ou `run.bat`)
@@ -14,15 +14,12 @@ Le projet s'exécute facilement avec un seul script qui s'occupe automatiquement
 ### 1. Tests de validation
 Vérifie la validité du tri de chaque algorithme sur différentes tailles et distributions :
 ```bash
-# Linux
 ./run.sh test
-./run.sh test Quick_Sort      # Tester un seul algorithme
+./run.sh test Quick_Sort
 
-# Windows (PowerShell)
 .\run test
 .\run test Quick_Sort
 
-# Windows (Invite de commandes CMD)
 run test
 run test Quick_Sort
 ```
@@ -30,32 +27,28 @@ run test Quick_Sort
 ### 2. Démo rapide
 Affiche un benchmark rapide dans le terminal (tailles de 100 à 25 000 éléments) :
 ```bash
-# Linux
 ./run.sh demo
-./run.sh demo sorted          # Démo sur données déjà triées
-./run.sh demo random Heap_Sort # Démo d'un algorithme spécifique
+./run.sh demo sorted
+./run.sh demo random Heap_Sort
 
-# Windows
 run demo
 run demo sorted
 run demo random Heap_Sort
 ```
 
-### 3. Benchmark complet & Génération des graphes
-Lance les tests sur toutes les tailles (jusqu'à 100 000), exporte les fichiers `.csv` dans `results/` et trace les courbes `.png` avec Gnuplot :
+### 3. Benchmark complet et génération des graphes
+Lance les tests sur toutes les tailles (jusqu'à 100 000), exporte les fichiers CSV dans `results/` et trace les courbes PNG avec Gnuplot :
 ```bash
-# Linux
-./run.sh full                 # Tous les types de données
-./run.sh full random          # Uniquement les données aléatoires
-./run.sh full sorted Heap_Sort # Un type et un algorithme spécifique
+./run.sh full
+./run.sh full random
+./run.sh full sorted Heap_Sort
 
-# Windows
 run full
 run full random
 run full sorted Heap_Sort
 ```
 
-Vous pouvez aussi lancer directement un type de données :
+Lancement direct d'un type de données :
 ```bash
 ./run.sh random
 ./run.sh sorted
@@ -67,16 +60,13 @@ Vous pouvez aussi lancer directement un type de données :
 ### 4. Nettoyage
 Supprime le binaire compilé ainsi que les graphes générés :
 ```bash
-# Linux
 ./run.sh clean
-
-# Windows
 run clean
 ```
 
 ---
 
-##  Algorithmes implémentés (7 algorithmes)
+## Algorithmes implémentés (7 algorithmes)
 
 1. **Tri à bulles** (`Bubble_Sort` / `tri_bubble`) : $O(n^2)$
 2. **Tri par sélection** (`Selection_Sort` / `tri_selection`) : $O(n^2)$
@@ -88,7 +78,7 @@ run clean
 
 ---
 
-##  Types de données testés
+## Types de données testés
 
 * `random` : Nombres aléatoires non triés.
 * `sorted` : Données déjà triées par ordre croissant.
@@ -98,30 +88,31 @@ run clean
 
 ---
 
-##  Structure du projet
+## Structure du projet
 
 ```
 tri_etude/
 ├── include/
-│   ├── benchmark.h   # Déclarations du moteur de mesure et types de données
-│   └── tri.h         # Prototypes des 7 algorithmes de tri
+│   ├── benchmark.h
+│   └── tri.h
 ├── src/
-│   ├── benchmark.c   # Mesures de temps précises et export CSV
-│   ├── input.c       # Génération des différents types de tableaux
-│   ├── main.c        # Interface en ligne de commande (CLI)
-│   └── tri.c         # Implémentation des 7 algorithmes de tri
-├── results/          # Fichiers CSV et graphes PNG générés
-├── plot.gp           # Script Gnuplot pour tracer les courbes de performance
-├── run.sh            # Script de compilation et d'exécution pour Linux / macOS
-├── run.bat           # Script de compilation et d'exécution pour Windows
-└── README.md         # Documentation du projet
+│   ├── benchmark.c
+│   ├── input.c
+│   ├── main.c
+│   └── tri.c
+├── results/
+├── plot.gp
+├── run.sh
+├── run.bat
+└── README.md
 ```
 
 ---
 
-##  Prérequis
+## Prérequis
 
 * **GCC** (ou tout compilateur C supportant C99 / POSIX).
 * **Gnuplot** *(optionnel)* : Nécessaire uniquement pour générer les images des courbes `.png`.
   * Arch Linux : `sudo pacman -S gnuplot`
   * Ubuntu / Debian : `sudo apt install gnuplot`
+

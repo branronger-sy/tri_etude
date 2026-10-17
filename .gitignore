@@ -1,16 +1,10 @@
-# Build artifacts
 benchmark
 benchmark.exe
 bin/
 obj/
 *.o
 *.out
-
-# Benchmark results (optional if you want to regenerate them)
-# results/*.csv
 results/*.png
-
-# IDE and caches
 .vscode/
 .cache/
 .DS_Store
