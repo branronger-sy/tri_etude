@@ -8,7 +8,8 @@
 
 Le projet s'exécute facilement avec un seul script qui s'occupe automatiquement de la compilation et de l'exécution :
 * **Linux / macOS** : `./run.sh`
-* **Windows** : `run.bat` (ou simplement `run`)
+* **Windows (PowerShell)** : `.\run` (ou `.\run.bat`)
+* **Windows (CMD)** : `run` (ou `run.bat`)
 
 ### 1. Tests de validation
 Vérifie la validité du tri de chaque algorithme sur différentes tailles et distributions :
@@ -17,7 +18,11 @@ Vérifie la validité du tri de chaque algorithme sur différentes tailles et di
 ./run.sh test
 ./run.sh test Quick_Sort      # Tester un seul algorithme
 
-# Windows
+# Windows (PowerShell)
+.\run test
+.\run test Quick_Sort
+
+# Windows (Invite de commandes CMD)
 run test
 run test Quick_Sort
 ```

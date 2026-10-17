@@ -3,7 +3,11 @@ if (!exists("type")) type = "random"
 csv = "results/".type.".csv"
 out = "results/plot_".type.".png"
 
-algos = "Bubble_Sort Selection_Sort Insertion_Sort Merge_Sort Quick_Sort Heap_Sort Qsort_std"
+if (!exists("algo") || strlen(algo) == 0) {
+    algos = "Bubble_Sort Selection_Sort Insertion_Sort Merge_Sort Quick_Sort Heap_Sort Qsort_std"
+} else {
+    algos = algo
+}
 
 set datafile separator ","
 set terminal pngcairo size 1400,850 enhanced font "Arial,12"
